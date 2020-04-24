@@ -19,6 +19,8 @@ Finally we concatenate the MF and the MLP outputs into an n + m dimentional vect
 
 ![](images/distribution_of_reviews.png)
 
+One concern I have is that most items have a very small number of reviews since there are so many items.
+
 ### Prerequisites
 ```
 pip3 install requirements.txt
