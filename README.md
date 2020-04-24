@@ -14,6 +14,8 @@ On the right we do a similar embedding into an m dimentional latent vector space
 
 Finally we concatenate the MF and the MLP outputs into an n + m dimentional vector and pass that through the final layer which maps from m + n -> 1. The final output is passed through a sigmoid function to bound it between 0 and 1.
 
+![](images/distribution_of_reviews.png)
+
 ### Prerequisites
 ```
 pip3 install requirements.txt
