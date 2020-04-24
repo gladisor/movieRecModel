@@ -1,5 +1,6 @@
 # movieRecModel
 
+# Model
 We are using Neural Colaberative Filtering in order to map user interactions with items
 to ratings.
 
@@ -13,6 +14,8 @@ On the left we embed users and items into an n dimentional latent vector space. 
 On the right we do a similar embedding into an m dimentional latent vector space. This time we concatenate the two vectors and pass them through an MLP.
 
 Finally we concatenate the MF and the MLP outputs into an n + m dimentional vector and pass that through the final layer which maps from m + n -> 1. The final output is passed through a sigmoid function to bound it between 0 and 1.
+
+# Data exploration
 
 ![](images/distribution_of_reviews.png)
 
