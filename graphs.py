@@ -1,6 +1,6 @@
 import pandas as pd
 
-data = pd.read_csv('datasets/reduced.csv')
+data = pd.read_csv('datasets/ratings.csv')
 
 num_users = data['userId'].max()
 num_movies = data['movieId'].max()
