@@ -2,6 +2,9 @@ import pandas as pd
 import torch
 import torch.nn as nn
 
+from movieDataset import movieData
+from torch.utils.data import DataLoader
+
 class NCF(nn.Module):
 	def __init__(self, num_users, num_movies,
 		mf_dim, mlp_dim):
@@ -13,7 +16,8 @@ class NCF(nn.Module):
 		self.movie_mlp = nn.Embedding(num_movies+1, mlp_dim)
 
 		self.layer1 = nn.Linear(2*mlp_dim, 2*mlp_dim)
-		self.layer2 = nn.Linear(2*mlp_dim, mlp_dim)
+		self.layer2 = nn.Linear(2*mlp_dim, 2*mlp_dim)
+		self.layer3 = nn.Linear(2*mlp_dim, mlp_dim)
 		self.final = nn.Linear(mlp_dim + mf_dim, 1)
 
 	def forward(self, X):
@@ -26,33 +30,46 @@ class NCF(nn.Module):
 
 		mlp_input = torch.cat((umlp,mmlp), 1)
 
-		out = self.layer1(mlp_input)
-		out = self.layer2(out)
+		out = nn.ReLU()(self.layer1(mlp_input))
+		out = nn.ReLU()(self.layer2(out))
+		out = nn.ReLU()(self.layer3(out))
 
 		gmf = umf*mmf
 		final_input = torch.cat((gmf, out), 1)
 
 		final_out = self.final(final_input)
-		final_out = nn.Sigmoid()(final_out)
+		final_out = 5*nn.Sigmoid()(final_out)
 		return final_out
 
-if __name__ == "__main__":
-	data = pd.read_csv('datasets/ratings.csv')
-	data = data[['userId','movieId','rating']]
-	data = data.values
+	def train(self, data, epochs, batch_size=30, lr=0.001):
+		opt = torch.optim.Adam(self.parameters(), lr=lr)
+		criterion = nn.MSELoss()
+		train = movieData(data, train=True)
+		test = movieData(data, train=False)
 
-	X = data[:,[0,1]]
-	y = data[:,2]
+		trainLoader = DataLoader(dataset=train, batch_size=batch_size)
+		testLoader = DataLoader(dataset=test, batch_size=batch_size)
 
-	X = torch.tensor(X).long()
-	y = torch.tensor(y)
+		history = {'loss':[],'val_loss':[]}
+		for epoch in range(epochs):
 
-	num_users = torch.max(X[:,0]).item()
-	num_movies = torch.max(X[:,1]).item()
+			avg_loss = []
+			for X, y in trainLoader:
+				opt.zero_grad()
+				y_hat = self.forward(X)
+				loss = criterion(y_hat, y)
+				loss.backward()
+				opt.step()
+				history['loss'].append(loss.item())
+				avg_loss.append(float(loss.item()))
 
-	mf_dim = 10
-	mlp_dim = 5
+			avg_val_loss = []
+			for X, y in testLoader:
+				y_hat = self.forward(X)
+				val_loss =criterion(y_hat, y)
+				history['val_loss'].append(val_loss.item())
+				avg_val_loss.append(float(val_loss.item()))
 
-	model = NCF(num_users, num_movies, mf_dim, mlp_dim)
-
-	print(model(X))
+			print(f"loss = {sum(avg_loss)/len(avg_loss)}", end=" ")
+			print(f"val_loss = {sum(avg_val_loss)/len(avg_val_loss)}")
+		return history

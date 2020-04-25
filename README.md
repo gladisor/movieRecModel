@@ -25,6 +25,10 @@ avg # of reviews/movie: 10.369806663924312
 
 One concern I have is that most items have a very small number of reviews since there are so many items.
 
+# Results
+
+![](images/loss.png)
+
 ### Prerequisites
 ```
 pip3 install requirements.txt

@@ -1,40 +1,32 @@
 from NCFModel import NCF
+
 import pandas as pd
 import torch
 import torch.nn as nn
+from sklearn.utils import shuffle
 
-data = pd.read_csv('datasets/ratings.csv')
+BATCH_SIZE = 20
+MF_DIM = 10
+MLP_DIM = 5
+EPOCHS = 100
+
+data = pd.read_csv('../large_dataset/ratings.csv')
 data = data[['userId','movieId','rating']]
-data = data.values
+data = data.values[0:1000]
+data = shuffle(data)
 
-X = data[:,[0,1]]
-y = data[:,2]
+num_users = int(max(data[:,0]))
+num_movies = int(max(data[:,1]))
 
-X = torch.tensor(X).long()
-y = torch.tensor(y).float()
-
-num_users = torch.max(X[:,0]).item()
-num_movies = torch.max(X[:,1]).item()
-
-mf_dim = 10
-mlp_dim = 5
-
-model = NCF(num_users, num_movies, mf_dim, mlp_dim)
-opt = torch.optim.Adam(model.parameters())
-criterion = nn.MSELoss()
-
-epochs = 100
-
-history = []
-for epoch in range(epochs):
-	opt.zero_grad()
-	y_hat = model(X).view(-1)
-	loss = criterion(y_hat, y)
-	loss.backward()
-	opt.step()
-	print(loss.item())
-	history.append(loss.item())
+model = NCF(num_users, num_movies, MF_DIM, MLP_DIM)
+history = model.train(data=data, epochs=EPOCHS, 
+	batch_size=BATCH_SIZE, lr=0.001)
 
 import matplotlib.pyplot as plt
-plt.plot(history)
+ax1 = plt.subplot(121)
+ax2 = plt.subplot(122)
+ax1.plot(history['loss'])
+ax1.set_title("Loss")
+ax2.plot(history['val_loss'])
+ax2.set_title("Val_loss")
 plt.show()
