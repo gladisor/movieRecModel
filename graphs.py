@@ -13,6 +13,9 @@ movies = []
 for movie in data['movieId'].unique():
 	movies.append(len(data.loc[data['movieId'] == movie]))
 
+print(f"avg # of reviews/user: {sum(users)/len(users)}")
+print(f"avg # of reviews/movie: {sum(movies)/len(movies)}")
+
 import matplotlib.pyplot as plt
 
 ax1 = plt.subplot(121)

@@ -19,6 +19,9 @@ Finally we concatenate the MF and the MLP outputs into an n + m dimentional vect
 
 ![](images/distribution_of_reviews.png)
 
+avg # of reviews/user: 165.30491803278687
+avg # of reviews/movie: 10.369806663924312
+
 One concern I have is that most items have a very small number of reviews since there are so many items.
 
 ### Prerequisites
