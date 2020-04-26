@@ -8,11 +8,11 @@ from sklearn.utils import shuffle
 BATCH_SIZE = 20
 MF_DIM = 10
 MLP_DIM = 5
-EPOCHS = 100
+EPOCHS = 10
 
-data = pd.read_csv('../large_dataset/ratings.csv')
+data = pd.read_csv('datasets/ratings.csv')
 data = data[['userId','movieId','rating']]
-data = data.values[0:1000]
+data = data.values
 data = shuffle(data)
 
 num_users = int(max(data[:,0]))
